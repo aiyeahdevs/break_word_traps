@@ -1,0 +1,11 @@
+Moim zadaniem jest wyłącznie wypisać wszystkie podane liczby.
+
+- Jeżeli nie ma żadnego pasującego zdania, zamiast tego napisz "Brak błędów".
+
+Format:
+- (Zwrot 1)
+- (Zwrot 2)
+- (Zwrot N)
+
+# Poprawiony tekst
+(Teskt użytkownika z zamienionymi nadmiarowymi liczbami na bardziej generalistyczne opisy.)

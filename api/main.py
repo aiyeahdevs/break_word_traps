@@ -32,17 +32,7 @@ def process_audio(file_path: str, threshold_quiet_db: float, threshold_loud_db: 
     results = analyze_volume(file_path, threshold_quiet_db, threshold_loud_db)
     return json.loads(json.dumps(results, cls=NumpyEncoder))
 
-def load_prompt(file_name: str) -> str:
-    file_path = os.path.join(PROMPT_PATH, file_name)
-    try:
-        with open(file_path, 'r') as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        print(f"Warning: {file_path} not found. Using default prompt.")
-        return "You are a helpful assistant."
-
 def analyze_target_group(llmkey: str):
-    
     user_prompt_file = "target-group-user.txt"
     system_prompt_file = "target-group-system.txt"
     
@@ -54,11 +44,32 @@ def analyze_target_group(llmkey: str):
     
     return target_group.strip()
 
+def detect_numbers(llmkey: str):
+    user_prompt_file = "target-group-user.txt"
+    system_prompt_file = "detect-numbers-system.txt"
+    
+    user_prompt = load_prompt(user_prompt_file)
+    system_prompt = load_prompt(system_prompt_file)
+    
+    # Use ask_llm to get the target group
+    target_group = ask_llm(llmkey, user_prompt, system_prompt, False)
+    
+    return target_group.strip()
+
+def load_prompt(file_name: str) -> str:
+    file_path = os.path.join(PROMPT_PATH, file_name)
+    try:
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        print(f"Warning: {file_path} not found. Using default prompt.")
+        return "You are a helpful assistant."
+
 def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: float, job_id: str, llmkey: str):
     tasks = [
         ("audio", lambda: process_audio(file_path, threshold_quiet_db, threshold_loud_db)),
         ("target-group", lambda: analyze_target_group(llmkey)),
-    ]
+        ("detect-numbers", lambda: detect_numbers(llmkey))]
 
     try:
         job_results[job_id] = {}
@@ -77,7 +88,6 @@ async def start_job(
     threshold_loud_db: float = -10,
     llmkey: str = Header(...)
 ):
-    print(f"Received llmkey: {llmkey}")  # Print the received key
     try:
         # Generate a unique job ID
         job_id = str(uuid.uuid4())

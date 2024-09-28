@@ -29,6 +29,9 @@ const App: React.FC = () => {
 
   const handleJobStart = (newJobId: string) => {
     setJobId(newJobId);
+    tasks.forEach((task) => {
+      task.completed = false;
+    });
     setLoadingTasks(
       tasks.reduce((acc, task) => ({ ...acc, [task.name]: true }), {})
     );

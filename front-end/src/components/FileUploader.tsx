@@ -33,12 +33,12 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     async (jobId: string) => {
       const checkStatus = async () => {
         try {
-          let allCompleted = true;
-          for (const task of tasks) {
+          for (const task of tasks.filter((task) => !task.completed)) {
             const response = await fetch(
               `http://localhost:8000/job-result/${jobId}/${task.endpoint}`
             );
             if (response.status === 200) {
+              task.completed = true;
               const data = await response.json();
               setResults((prevResults) => ({
                 ...prevResults,
@@ -48,11 +48,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({
                 ...prevLoadingTasks,
                 [task.name]: false,
               }));
-            } else {
-              allCompleted = false;
             }
           }
 
+          const allCompleted = tasks.every((task) => task.completed);
           if (!allCompleted) {
             setTimeout(checkStatus, pollInterval);
           } else {
