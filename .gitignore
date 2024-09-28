@@ -89,3 +89,7 @@ dist
 
 #python env
 _audio_env
+
+#ignore audio files
+*.mp3
+*.wav
