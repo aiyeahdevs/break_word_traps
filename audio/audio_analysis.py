@@ -8,12 +8,47 @@ import time
 import warnings
 import traceback
 import json
+import matplotlib.pyplot as plt
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.number):
             return float(obj)
         return super(NumpyEncoder, self).default(obj)
+
+def plot_loudness(sr, db, threshold_low, threshold_high):
+
+    times = librosa.times_like(db, sr=sr, hop_length=int(1.0 * sr)//2)
+    too_quiet = db < threshold_low
+    too_loud = db > threshold_high
+
+    results = []
+    for i, (time, loudness) in enumerate(zip(times, db)):
+        if too_quiet[i]:
+            results.append((time, loudness, "Za cicho"))
+        elif too_loud[i]:
+            results.append((time, loudness, "Za głośno"))
+        else:
+            results.append((time, loudness, "OK"))
+
+    plt.figure(figsize=(15, 5))
+    plt.plot(times, db)
+    plt.axhline(y=threshold_low, color='r', linestyle='--', label='Próg ciszy')
+    plt.axhline(y=threshold_high, color='g', linestyle='--', label='Próg głośności')
+
+    for time, loudness, status in results:
+        if status == "Za cicho":
+            plt.plot(time, loudness, 'ro')
+        elif status == "Za głośno":
+            plt.plot(time, loudness, 'go')
+
+    plt.xlabel('Czas (s)')
+    plt.ylabel('Głośność (dB)')
+    plt.title('Analiza głośności mowy')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('loudness_analysis.png')
+    plt.close()
 
 def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):
     print(f"Starting analysis of file: {file_path}")
@@ -60,6 +95,9 @@ def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):
         too_quiet = np.mean(db_levels < threshold_quiet_db)
 
         print(f"Analysis completed in {time.time() - start_time:.2f} seconds")
+
+        plot_loudness(sr, db_levels, threshold_quiet_db, threshold_loud_db)
+
         return {
             "too_loud_percentage": too_loud * 100,
             "too_quiet_percentage": too_quiet * 100,
