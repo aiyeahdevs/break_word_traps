@@ -2,6 +2,7 @@ import re
 from readability import Readability
 import nltk
 from nltk.corpus import cmudict
+from sentimentpl.models import SentimentPLModel
 
 example_text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
 
@@ -43,7 +44,6 @@ def get_len_of_words(text):
 
 
 def get_readability(text):
-    #print(text)
     r = Readability(text)
     #metrics = []
     #metrics.append(r.flesch_kincaid())
@@ -90,4 +90,31 @@ def count_syllables_in_sentences(text):
             syllables_sentences.append(sum(syllables_words))
     return(syllables_sentences)
 
-print(count_syllables_in_sentences(example_text))
+
+def sentiment_analysis(text):
+
+    model = SentimentPLModel(from_pretrained='latest')
+    return(model(text).item())
+
+def extract(text):
+
+    character_count = get_num_of_characters(text)
+    word_count = get_num_of_words(text)
+    num_of_sentenes = get_num_of_sentences(text)
+    len_of_sentences = get_len_of_sentences(text)
+    len_of_words = get_len_of_words(text)
+
+    readability = get_readability(text)
+
+    syllables_in_words = count_syllables_in_words(text)
+    syllables_in_sentences = count_syllables_in_sentences(text)
+
+    return([character_count, word_count, num_of_sentenes, len_of_sentences, len_of_words, readability, syllables_in_words, syllables_in_sentences])
+
+
+
+
+
+
+
+

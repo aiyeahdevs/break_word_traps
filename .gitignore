@@ -97,3 +97,5 @@ _venv
 *.wav
 
 **/__pycache__
+# python
+venv
