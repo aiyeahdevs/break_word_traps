@@ -12,12 +12,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
     setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
-    onDrop,
-    accept: {
-      'video/mp4': ['.mp4']
-    },
-  });
+  const { getRootProps, getInputProps, isDragActive, fileRejections } =
+    useDropzone({
+      onDrop,
+      accept: {
+        "video/mp4": [".mp4"],
+      },
+    });
 
   const handleUpload = () => {
     onUpload(files);
@@ -29,14 +30,16 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
       <div {...getRootProps()} style={dropzoneStyles}>
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p>Drop the MP4 files here ...</p>
+          <p>Wrzuć pliki MP4 tutaj ...</p>
         ) : (
-          <p>Drag 'n' drop some MP4 files here, or click to select files</p>
+          <p>
+            Przeciągnij i upuść pliki MP4 tutaj lub kliknij, aby wybrać pliki
+          </p>
         )}
       </div>
       {files.length > 0 && (
         <div>
-          <h4>Selected files:</h4>
+          <h4>Wybrane pliki:</h4>
           <ul>
             {files.map((file, index) => (
               <li key={index}>{file.name}</li>
@@ -45,19 +48,19 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
         </div>
       )}
       {fileRejections.length > 0 && (
-        <div style={{ color: 'red' }}>
-          <h4>Rejected files:</h4>
+        <div style={{ color: "red" }}>
+          <h4>Odrzucone pliki:</h4>
           <ul>
             {fileRejections.map(({ file, errors }) => (
               <li key={file.name}>
-                {file.name} - {errors.map(e => e.message).join(', ')}
+                {file.name} - {errors.map((e) => e.message).join(", ")}
               </li>
             ))}
           </ul>
         </div>
       )}
       <button onClick={handleUpload} disabled={files.length === 0}>
-        Upload Files
+        Wyślij pliki
       </button>
     </div>
   );

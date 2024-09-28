@@ -30,7 +30,7 @@ const App: React.FC = () => {
 
   return (
     <div style={{ maxWidth: "600px", margin: "0 auto", padding: "20px" }}>
-      <h1>File Upload Dropzone</h1>
+      <h1>Pliki Wideo</h1>
       <FileUpload onUpload={handleUpload} />
       {uploadStatus && <p>{uploadStatus}</p>}
     </div>
