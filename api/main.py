@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from audio.audio_analysis import analyze_volume, NumpyEncoder
@@ -20,7 +20,13 @@ async def root():
     return {"message": "Welcome to the Audio Analysis API"}
 
 @app.post("/analyze_volume/")
-async def analyze_audio_volume(file: UploadFile = File(...), threshold_quiet_db: float = -30, threshold_loud_db: float = -10):
+async def analyze_audio_volume(
+    file: UploadFile = File(...), 
+    threshold_quiet_db: float = -30, 
+    threshold_loud_db: float = -10,
+    llmkey: str = Header(...)
+):
+    print(f"Received llmkey: {llmkey}")  # Print the received key
     try:
         # Save the uploaded file temporarily
         with open(file.filename, "wb") as buffer:

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
 interface AnalysisResult {
@@ -9,7 +9,11 @@ interface AnalysisResult {
   min_db: number;
 }
 
-const FileUpload: React.FC = () => {
+interface FileUploadProps {
+  apiKey: string;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +44,9 @@ const FileUpload: React.FC = () => {
     try {
       const response = await fetch("http://localhost:8000/analyze_volume/", {
         method: "POST",
+        headers: {
+          'llmkey': apiKey
+        },
         body: formData,
       });
 
