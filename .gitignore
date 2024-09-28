@@ -93,3 +93,6 @@ _audio_env
 #ignore audio files
 *.mp3
 *.wav
+
+# python
+venv
