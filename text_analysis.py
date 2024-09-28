@@ -5,10 +5,9 @@ audio_len = 30 # seconds
 word_syl_thresh = 4
 sentence_word_thresh = 60
 
-
 example_text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
 
-
+# analyses the video transcript
 def analyse(example_text, audio_len, word_syl_thresh, sentence_word_thresh):
 
     character_count, word_count, num_of_sentenes, len_of_sentences, len_of_words, readability, syllables_in_words, syllables_in_sentences = extract(example_text)
@@ -31,7 +30,6 @@ def analyse(example_text, audio_len, word_syl_thresh, sentence_word_thresh):
     # readability (can print score and grade level)
     r_score_flesch = readability[0].score
     r_grade_level_flesch = readability[0].grade_levels
-    #print(r_score, r_grade_level[0])
     r_score_fog = readability[1].score
     r_grade_level_fog = readability[1].grade_level
 
