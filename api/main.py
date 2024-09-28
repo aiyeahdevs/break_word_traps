@@ -50,7 +50,7 @@ def analyze_target_group(llmkey: str):
     system_prompt = load_prompt(system_prompt_file)
     
     # Use ask_llm to get the target group
-    target_group = ask_llm(llmkey, user_prompt, system_prompt)
+    target_group = ask_llm(llmkey, user_prompt, system_prompt, True)
     
     return target_group.strip()
 

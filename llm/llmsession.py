@@ -1,27 +1,32 @@
 from openai import OpenAI
 import os
+import re
 
-def ask_llm(api_key: str, user_prompt: str, system_prompt: str) -> str:
+def load_prompt(file_name: str) -> str:
+    with open(os.path.join(os.path.dirname(__file__), file_name), 'r') as file:
+        return file.read().strip()
+
+def ask_llm(api_key: str, user_prompt: str, system_prompt: str, is_thinking: bool = False) -> str:
     try:
-       
-    
-        client = OpenAI(
-            api_key=api_key
-        )
-
-        client = OpenAI(
-        # This is the default and can be omitted
-            api_key=api_key,
-        )
+        client = OpenAI(api_key=api_key)
         print("api_key" + api_key) 
         chat_completion = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ]
         )
-        return chat_completion.choices[0].message.content
+        response = chat_completion.choices[0].message.content
+        
+        if is_thinking:
+            answer_match = re.search(r'<answer>(.*?)</answer>', response, re.DOTALL)
+            if answer_match:
+                return answer_match.group(1).strip()
+            else:
+                return "No answer tag found in the response."
+        else:
+            return response
     except Exception as e:
         return f"Error: {str(e)}"
 
@@ -35,5 +40,5 @@ if __name__ == "__main__":
     user_prompt = load_prompt("user-prompt.txt")
     system_prompt = load_prompt("system-prompt.txt")
     
-    response = ask_llm(api_key, user_prompt, system_prompt)
+    response = ask_llm(api_key, user_prompt, system_prompt, is_thinking=True)
     print(response)
