@@ -7,6 +7,13 @@ import tempfile
 import time
 import warnings
 import traceback
+import json
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.number):
+            return float(obj)
+        return super(NumpyEncoder, self).default(obj)
 
 def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):
     print(f"Starting analysis of file: {file_path}")
@@ -16,10 +23,10 @@ def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):
     temp_wav_path = tempfile.mktemp(suffix=".wav")
 
     try:
-        print("Converting MP3 to WAV...")
-        # Convert MP3 to WAV using ffmpeg-python
+        print("Extracting audio from MP4 and converting to WAV...")
+        # Extract audio from MP4 and convert to WAV using ffmpeg-python
         stream = ffmpeg.input(file_path)
-        stream = ffmpeg.output(stream, temp_wav_path)
+        stream = ffmpeg.output(stream, temp_wav_path, acodec='pcm_s16le', ac=1, ar='44100')
         try:
             out, err = ffmpeg.run(stream, capture_stdout=True, capture_stderr=True)
             print(f"Conversion completed in {time.time() - start_time:.2f} seconds")
@@ -72,7 +79,7 @@ def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python audio_analysis.py <path_to_audio_file> <quiet_threshold_db> <loud_threshold_db>")
+        print("Usage: python audio_analysis.py <path_to_mp4_file> <quiet_threshold_db> <loud_threshold_db>")
         sys.exit(1)
 
     file_path = sys.argv[1]
@@ -85,15 +92,14 @@ if __name__ == "__main__":
         threshold_loud_db = float(sys.argv[3])
         results = analyze_volume(file_path, threshold_quiet_db, threshold_loud_db)
 
-        print(f"\nAnalysis results for: {file_path}")
-        print(f"Percentage of audio that's too quiet (<{threshold_quiet_db} dB): {results['too_quiet_percentage']:.2f}%")
-        print(f"Percentage of audio that's too loud (>{threshold_loud_db} dB): {results['too_loud_percentage']:.2f}%")
-        print(f"Maximum dB level: {results['max_db']:.2f} dB")
-        print(f"Minimum dB level: {results['min_db']:.2f} dB")
-        print(f"Average dB level: {results['average_db']:.2f} dB")
+        # Convert results to a JSON string using the custom encoder
+        json_results = json.dumps(results, indent=2, cls=NumpyEncoder)
+        print(json_results)
     except ValueError as e:
-        print(f"Error: Invalid dB threshold values. {str(e)}")
+        error_message = {"error": f"Invalid dB threshold values. {str(e)}"}
+        print(json.dumps(error_message))
         sys.exit(1)
     except Exception as e:
-        print(f"An error occurred during analysis: {str(e)}")
+        error_message = {"error": f"An error occurred during analysis: {str(e)}"}
+        print(json.dumps(error_message, cls=NumpyEncoder))
         sys.exit(1)

@@ -90,6 +90,7 @@ dist
 #python env
 _audio_env
 _api_env
+_venv
 
 #ignore audio files
 *.mp3
