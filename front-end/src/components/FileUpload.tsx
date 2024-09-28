@@ -1,6 +1,11 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
+interface JobResponse {
+  job_id: string;
+  message: string;
+}
+
 interface AnalysisResult {
   too_loud_percentage: number;
   too_quiet_percentage: number;
@@ -9,12 +14,45 @@ interface AnalysisResult {
   min_db: number;
 }
 
+interface JobStatus {
+  status: 'processing' | 'completed';
+  results?: AnalysisResult;
+}
+
 interface FileUploadProps {
   apiKey: string;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
+  const pollInterval = 5000; // 5 seconds
+
+  const pollJobStatus = useCallback(async (jobId: string) => {
+    const checkStatus = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/job_status/${jobId}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: JobStatus = await response.json();
+        if (data.status === 'completed') {
+          setResults(data.results || null);
+          setIsLoading(false);
+          setJobId(null);
+        } else {
+          setTimeout(checkStatus, pollInterval);
+        }
+      } catch (e) {
+        setError("An error occurred while checking job status.");
+        console.error("Job status error:", e);
+        setIsLoading(false);
+        setJobId(null);
+      }
+    };
+
+    checkStatus();
+  }, []);
   const [files, setFiles] = useState<File[]>([]);
+  const [jobId, setJobId] = useState<string | null>(null);
   const [results, setResults] = useState<AnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +80,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
     formData.append("file", files[0]);
 
     try {
-      const response = await fetch("http://localhost:8000/analyze_volume/", {
+      const response = await fetch("http://localhost:8000/start-job/", {
         method: "POST",
         headers: {
-          'llmkey': apiKey
+          llmkey: apiKey,
         },
         body: formData,
       });
@@ -54,8 +92,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      setResults(data);
+      const data: JobResponse = await response.json();
+      setJobId(data.job_id);
+      pollJobStatus(data.job_id);
     } catch (e) {
       setError("An error occurred while uploading the file.");
       console.error("Upload error:", e);
@@ -103,11 +142,19 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
         {isLoading ? "Wysyłanie..." : "Wyślij pliki"}
       </button>
       {error && <div style={{ color: "red", marginTop: "10px" }}>{error}</div>}
+      {isLoading && <div>Przetwarzanie... Proszę czekać.</div>}
+      {jobId && <div>ID zadania: {jobId}</div>}
       {results && (
         <div style={resultsStyles}>
           <h4>Wyniki analizy:</h4>
-          <p>Procent zbyt głośnego dźwięku: {results.too_loud_percentage.toFixed(2)}%</p>
-          <p>Procent zbyt cichego dźwięku: {results.too_quiet_percentage.toFixed(2)}%</p>
+          <p>
+            Procent zbyt głośnego dźwięku:{" "}
+            {results.too_loud_percentage.toFixed(2)}%
+          </p>
+          <p>
+            Procent zbyt cichego dźwięku:{" "}
+            {results.too_quiet_percentage.toFixed(2)}%
+          </p>
           <p>Średni poziom dB: {results.average_db.toFixed(2)} dB</p>
           <p>Maksymalny poziom dB: {results.max_db.toFixed(2)} dB</p>
           <p>Minimalny poziom dB: {results.min_db.toFixed(2)} dB</p>

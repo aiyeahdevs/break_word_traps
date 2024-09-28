@@ -1,0 +1,11 @@
+Dla podanych zwrotów użytkownika zapronuj bardziej przystępne zwroty, które może zrozumieć każdy, ale brzmią prosto i klarownie.
+
+- Jeżeli nie ma żadnego pasującego zdania, zamiast tego napisz "Brak błędów".
+
+Format:
+**Trudny Zwrot 1**
+Łatwy Zwrot 1
+**Trudny Zwrot 2**
+Łatwy Zwrot 2
+**Trudny Zwrot 3**
+Łatwy Zwrot 3
