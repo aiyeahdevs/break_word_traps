@@ -14,9 +14,10 @@ interface AnalysisResult {
   min_db: number;
 }
 
-interface JobStatus {
-  status: 'processing' | 'completed';
-  results?: AnalysisResult;
+interface Task {
+  name: string;
+  endpoint: string;
+  setResult: React.Dispatch<React.SetStateAction<any>>;
 }
 
 interface FileUploadProps {
@@ -24,38 +25,74 @@ interface FileUploadProps {
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
-  const pollInterval = 5000; // 5 seconds
+  const pollInterval = 2000; // 2 seconds
 
-  const pollJobStatus = useCallback(async (jobId: string) => {
-    const checkStatus = async () => {
-      try {
-        const response = await fetch(`http://localhost:8000/job_status/${jobId}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: JobStatus = await response.json();
-        if (data.status === 'completed') {
-          setResults(data.results || null);
-          setIsLoading(false);
-          setJobId(null);
-        } else {
-          setTimeout(checkStatus, pollInterval);
-        }
-      } catch (e) {
-        setError("An error occurred while checking job status.");
-        console.error("Job status error:", e);
-        setIsLoading(false);
-        setJobId(null);
-      }
-    };
-
-    checkStatus();
-  }, []);
   const [files, setFiles] = useState<File[]>([]);
   const [jobId, setJobId] = useState<string | null>(null);
-  const [results, setResults] = useState<AnalysisResult | null>(null);
+  const [audioResults, setAudioResults] = useState<AnalysisResult | null>(null);
+  const [textResults, setTargetGroupResult] = useState<any | null>(null);
+  const [videoResults, setVideoResults] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const tasks: Task[] = [
+    {
+      name: "audio",
+      endpoint: "audio",
+      setResult: setAudioResults,
+    },
+    {
+      name: "target-group",
+      endpoint: "target-group",
+      setResult: setTargetGroupResult,
+    },
+    // {
+    //   name: 'video',
+    //   endpoint: 'video',
+    //   setResult: setVideoResults,
+    // },
+  ];
+
+  const pollJobStatus = useCallback(
+    async (jobId: string) => {
+      const checkStatus = async () => {
+        try {
+          const results = await Promise.all(
+            tasks.map(async (task) => {
+              const response = await fetch(
+                `http://localhost:8000/job-result/${jobId}/${task.endpoint}`
+              );
+              return { task, response };
+            })
+          );
+
+          let allCompleted = true;
+          results.forEach(({ task, response }) => {
+            if (response.status === 200) {
+              response.json().then((data) => task.setResult(data[task.name]));
+            } else {
+              allCompleted = false;
+            }
+          });
+
+          if (!allCompleted) {
+            setTimeout(checkStatus, pollInterval);
+          } else {
+            setIsLoading(false);
+            setJobId(null);
+          }
+        } catch (e) {
+          setError("Wystąpił błąd podczas sprawdzania statusu zadania.");
+          console.error("Job status error:", e);
+          setIsLoading(false);
+          setJobId(null);
+        }
+      };
+
+      checkStatus();
+    },
+    [tasks]
+  );
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
@@ -74,7 +111,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
 
     setIsLoading(true);
     setError(null);
-    setResults(null);
+    //setResults(null);
 
     const formData = new FormData();
     formData.append("file", files[0]);
@@ -96,7 +133,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
       setJobId(data.job_id);
       pollJobStatus(data.job_id);
     } catch (e) {
-      setError("An error occurred while uploading the file.");
+      setError("Wystąpił błąd podczas przesyłania pliku.");
       console.error("Upload error:", e);
     } finally {
       setIsLoading(false);
@@ -109,7 +146,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
       <div {...getRootProps()} style={dropzoneStyles}>
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p>Wrzuć pliki MP4 tutaj ...</p>
+          <p>Upuść pliki MP4 tutaj ...</p>
         ) : (
           <p>
             Przeciągnij i upuść pliki MP4 tutaj lub kliknij, aby wybrać pliki
@@ -144,22 +181,46 @@ const FileUpload: React.FC<FileUploadProps> = ({ apiKey }) => {
       {error && <div style={{ color: "red", marginTop: "10px" }}>{error}</div>}
       {isLoading && <div>Przetwarzanie... Proszę czekać.</div>}
       {jobId && <div>ID zadania: {jobId}</div>}
-      {results && (
-        <div style={resultsStyles}>
-          <h4>Wyniki analizy:</h4>
-          <p>
-            Procent zbyt głośnego dźwięku:{" "}
-            {results.too_loud_percentage.toFixed(2)}%
-          </p>
-          <p>
-            Procent zbyt cichego dźwięku:{" "}
-            {results.too_quiet_percentage.toFixed(2)}%
-          </p>
-          <p>Średni poziom dB: {results.average_db.toFixed(2)} dB</p>
-          <p>Maksymalny poziom dB: {results.max_db.toFixed(2)} dB</p>
-          <p>Minimalny poziom dB: {results.min_db.toFixed(2)} dB</p>
-        </div>
-      )}
+      {tasks.map((task) => {
+        const result =
+          task.name === "audio"
+            ? audioResults
+            : task.name === "target-group"
+            ? textResults
+            : videoResults;
+        if (!result) return null;
+
+        return (
+          <div key={task.name} style={resultsStyles}>
+            <h4>
+              Wyniki analizy{" "}
+              {task.name === "audio"
+                ? "audio"
+                : task.name === "target-group"
+                ? "tekstu"
+                : "wideo"}
+              :
+            </h4>
+            {task.name === "audio" && audioResults ? (
+              <>
+                <p>
+                  Procent zbyt głośnego dźwięku:{" "}
+                  {audioResults.too_loud_percentage.toFixed(2)}%
+                </p>
+                <p>
+                  Procent zbyt cichego dźwięku:{" "}
+                  {audioResults.too_quiet_percentage.toFixed(2)}%
+                </p>
+                <p>Średni poziom dB: {audioResults.average_db.toFixed(2)} dB</p>
+                <p>Maksymalny poziom dB: {audioResults.max_db.toFixed(2)} dB</p>
+                <p>Minimalny poziom dB: {audioResults.min_db.toFixed(2)} dB</p>
+              </>
+            ) : (
+              <pre>{JSON.stringify(result, null, 2)}</pre>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
