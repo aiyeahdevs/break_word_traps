@@ -10,11 +10,20 @@ import traceback
 import json
 import matplotlib.pyplot as plt
 
+LOUDNESS_ANALYSIS_PATH = '/home/karol/Projects/break_word_traps/api/images/loudness_analysis.png'
+
+# Ensure the directory exists
+os.makedirs(os.path.dirname(LOUDNESS_ANALYSIS_PATH), exist_ok=True)
+
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.number):
             return float(obj)
         return super(NumpyEncoder, self).default(obj)
+
+def delete_plot():
+    if os.path.exists(LOUDNESS_ANALYSIS_PATH):
+        os.remove(LOUDNESS_ANALYSIS_PATH)
 
 def plot_loudness(sr, db, threshold_low, threshold_high):
 
@@ -47,7 +56,7 @@ def plot_loudness(sr, db, threshold_low, threshold_high):
     plt.title('Analiza głośności mowy')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('../api/images/loudness_analysis.png')
+    plt.savefig(LOUDNESS_ANALYSIS_PATH)
     plt.close()
 
 def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):

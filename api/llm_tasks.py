@@ -39,7 +39,7 @@ def detect_foreign(llmkey: str, transcription: str):
     return process_llm_task(llmkey, transcription, "detect-foreign")
 
 def generate_questions(llmkey: str, transcription: str):
-    return process_llm_task(llmkey, transcription, "generate-questions")
+    return process_llm_task(llmkey, transcription, "generate-questions", True)
 
 def detect_interruptions(llmkey: str, transcription: str):
     return process_llm_task(llmkey, transcription, "detect-interruptions")

@@ -28,7 +28,12 @@ const ResultDisplay: React.FC<ResultsDisplayProps> = ({
       ) : result ? (
         task.name === "audio" ? (
           <>
-            <p>
+            <img
+              src="http://localhost:8000/images/loudness_analysis.png"
+              alt="Loudness Analysis"
+              style={{ maxWidth: "100%", height: "auto" }}
+            />
+            {/* <p>
               Procent zbyt głośnego dźwięku:{" "}
               {result.too_loud_percentage.toFixed(2)}%
             </p>
@@ -38,7 +43,7 @@ const ResultDisplay: React.FC<ResultsDisplayProps> = ({
             </p>
             <p>Średni poziom dB: {result.average_db.toFixed(2)} dB</p>
             <p>Maksymalny poziom dB: {result.max_db.toFixed(2)} dB</p>
-            <p>Minimalny poziom dB: {result.min_db.toFixed(2)} dB</p>
+            <p>Minimalny poziom dB: {result.min_db.toFixed(2)} dB</p> */}
           </>
         ) : (
           <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>

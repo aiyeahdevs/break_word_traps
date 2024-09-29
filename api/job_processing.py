@@ -2,6 +2,7 @@ from llm.llmsession import transcribe_audio
 from .audio_processing import extract_audio, delete_audio, process_audio
 from .llm_tasks import analyze_target_group, detect_numbers, detect_foreign, process_jargon, generate_questions, detect_interruptions, fix_repetitions, fix_topic_change, fix_passive, fix_nonexistent, validate_understanding, evaluate_structure
 import os
+from audio.audio_analysis import delete_plot
 import hashlib
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
@@ -28,7 +29,9 @@ def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: f
                 return
             transcription = transcribe_audio(api_key=llmkey, file_path=temp_audio_file)
             transcription_cache[file_hash] = transcription
-
+        
+        delete_plot()
+        
         tasks = [
             ("audio", partial(process_audio, temp_audio_file or file_path, threshold_quiet_db, threshold_loud_db)),
             ("target-group", partial(analyze_target_group, llmkey, transcription)),
