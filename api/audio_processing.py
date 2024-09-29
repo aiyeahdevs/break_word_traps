@@ -25,4 +25,4 @@ def delete_audio(file_path):
 def process_audio(file_path: str, threshold_quiet_db: float, threshold_loud_db: float):
     
     results = analyze_volume(file_path, threshold_quiet_db, threshold_loud_db)
-    return json.loads(json.dumps(results, cls=NumpyEncoder))
+    return json.loads(json.dumps(results, cls=NumpyEncoder, ensure_ascii=False))

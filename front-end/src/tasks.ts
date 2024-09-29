@@ -13,8 +13,8 @@ export const tasks: Task[] = [
     completed: false,
   },
   {
-    name: "distracting movements",
-    endpoint: "distracting movements",
+    name: "distracting-movements",
+    endpoint: "distracting-movements",
     title: "Rozpraszające ruchy",
     completed: false,
   },
@@ -33,7 +33,7 @@ export const tasks: Task[] = [
   {
     name: "process-jargon",
     endpoint: "process-jargon",
-    title: "Wyciąganie Żargonu",
+    title: "Żargonometr",
     completed: false,
   },
   {

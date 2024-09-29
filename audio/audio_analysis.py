@@ -148,5 +148,5 @@ if __name__ == "__main__":
         sys.exit(1)
     except Exception as e:
         error_message = {"error": f"An error occurred during analysis: {str(e)}"}
-        print(json.dumps(error_message, cls=NumpyEncoder))
+        print(json.dumps(error_message, cls=NumpyEncoder, ensure_ascii=False))
         sys.exit(1)

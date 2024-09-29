@@ -61,15 +61,9 @@ def detect(vid):
 		if motion_list[-1] == 0 and motion_list[-2] == 1:
 			time.append(datetime.now())
 
-		# framing the moving object
-		cv2.imshow("Color Frame", frame)
-
 
 		key = cv2.waitKey(1)
 		static_back = gray
-
-	video.release()
-	cv2.destroyAllWindows()
 
 	print(motions)
 
@@ -82,8 +76,7 @@ def detect(vid):
 			"result": "Nie wykryto rozpraszającego ruchu"
 		}
 
-	return json.dumps(value)
-
+	return json.dumps(value, ensure_ascii=False)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
