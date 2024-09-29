@@ -28,14 +28,14 @@ def analyse(example_text, audio_len = 30, word_syl_thresh = 4, sentence_word_thr
     r_grade_level_fog = readability[1].grade_level
 
     value = {
-        "long_words": long_word_count,
-        "long_sentences": long_sentence_count,
-        "flesch–kincaid_score": r_score_flesch,
-        "flesch–kincaid_grade": r_grade_level_flesch,
-        "gunning_fog_index_score": r_score_fog,
-        "gunning_fog_index_grade": r_grade_level_fog,
+        "Liczba zbyt długich słów": long_word_count,
+        "Liczba zbyt długich zdań": long_sentence_count,
+        "Indeks czytelności Flescha": r_score_flesch,
+        "Indeks czytelności Flescha (kategoria)": r_grade_level_flesch,
+        "Współczynnik Mglistości Gunninga": r_score_fog,
+        "Współczynnik Mglistości Gunninga (kategoria)": r_grade_level_fog,
 
     }
-    
+
     return json.dumps(value)
 
