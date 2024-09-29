@@ -2,15 +2,54 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Header, Background
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from audio.audio_analysis import analyze_volume, NumpyEncoder
-from llm.llmsession import ask_llm
+from llm.llmsession import ask_llm, transcribe_audio
 import json
 import uuid
 import os
 import random
+import subprocess
+import tempfile
 
 PROMPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../llm")
 
 app = FastAPI()
+
+def extract_audio(video_path):
+    temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+    temp_audio_path = temp_audio.name
+    temp_audio.close()
+
+    try:
+        subprocess.run(['ffmpeg', '-i', video_path, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', temp_audio_path], check=True)
+        return temp_audio_path
+    except subprocess.CalledProcessError:
+        os.unlink(temp_audio_path)
+        return None
+
+def delete_audio(file_path):
+    try:
+        os.unlink(file_path)
+    except OSError as e:
+        print(f"Error deleting file {file_path}: {e}")
+
+def extract_audio(video_path):
+    temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+    temp_audio_path = temp_audio.name
+    temp_audio.close()
+
+    try:                                                                                                    
+         subprocess.run(['ffmpeg', '-y', '-i', video_path, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100',    
+ '-ac', '2', temp_audio_path], check=True)                                                                   
+         return temp_audio_path                                                                              
+    except subprocess.CalledProcessError:                                                                   
+         os.unlink(temp_audio_path)                                                                          
+         return None  
+
+def delete_audio(file_path):
+    try:
+        os.unlink(file_path)
+    except OSError as e:
+        print(f"Error deleting file {file_path}: {e}")
 
 # Store job results
 job_results = {}
@@ -32,11 +71,12 @@ def process_audio(file_path: str, threshold_quiet_db: float, threshold_loud_db: 
     results = analyze_volume(file_path, threshold_quiet_db, threshold_loud_db)
     return json.loads(json.dumps(results, cls=NumpyEncoder))
 
-def analyze_target_group(llmkey: str):
-    user_prompt_file = "target-group-user.txt"
+def analyze_target_group(llmkey: str, transcription: str): 
+    # user_prompt_file = "target-group-user.txt"
     system_prompt_file = "target-group-system.txt"
     
-    user_prompt = load_prompt(user_prompt_file)
+    # user_prompt = load_prompt(user_prompt_file)
+    user_prompt = transcription
     system_prompt = load_prompt(system_prompt_file)
     
     # Use ask_llm to get the target group
@@ -44,11 +84,12 @@ def analyze_target_group(llmkey: str):
     
     return target_group.strip()
 
-def detect_numbers(llmkey: str):
-    user_prompt_file = "target-group-user.txt"
+def detect_numbers(llmkey: str, transcription: str):
+    #user_prompt_file = "target-group-user.txt"
     system_prompt_file = "detect-numbers-system.txt"
     
-    user_prompt = load_prompt(user_prompt_file)
+    #user_prompt = load_prompt(user_prompt_file)
+    user_prompt = transcription
     system_prompt = load_prompt(system_prompt_file)
     
     # Use ask_llm to get the target group
@@ -66,18 +107,26 @@ def load_prompt(file_name: str) -> str:
         return "You are a helpful assistant."
 
 def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: float, job_id: str, llmkey: str):
-    tasks = [
-        ("audio", lambda: process_audio(file_path, threshold_quiet_db, threshold_loud_db)),
-        ("target-group", lambda: analyze_target_group(llmkey)),
-        ("detect-numbers", lambda: detect_numbers(llmkey))]
+    temp_audio_file = extract_audio(file_path)
+    if temp_audio_file is None:
+        job_results[job_id] = {"error": "Failed to extract audio from video"}
+        return
 
     try:
+        transcription = transcribe_audio(api_key=llmkey, file_path=temp_audio_file)
+        
+        tasks = [
+            ("audio", lambda: process_audio(temp_audio_file, threshold_quiet_db, threshold_loud_db)),
+            ("target-group", lambda: analyze_target_group(llmkey, transcription)),
+            ("detect-numbers", lambda: detect_numbers(llmkey, transcription))]
+
         job_results[job_id] = {}
         for task_name, task_func in tasks:
             job_results[job_id][task_name] = task_func()
     except Exception as e:
         job_results[job_id] = {"error": str(e)}
     finally:
+        delete_audio(temp_audio_file)
         os.remove(file_path)
 
 @app.post("/start-job/")
