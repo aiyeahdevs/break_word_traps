@@ -12,5 +12,3 @@ Przed uruchomieniem aplikacji upewnij się, że wszystkie biblioteki z pliku **r
 Żeby obliczanie Współczynnika Mglistości Gunninga (Gunning Fog Index) i Indeksu Czytelności Flescha działało poprawnie dla transkryptów krótszych niż sto wyrazów należy zainstalować bibliotekę py-readability-metrics podanym poniżej poleceniem.
 
 `pip install git+https://github.com/kanapka0/py-readability-metrics.git`
-# Strona internetowa
-[https://breakwordtraps.pl](https://breakwordtraps.pl/)
