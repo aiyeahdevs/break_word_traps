@@ -1,15 +1,8 @@
 from extract_text_data import *
-
-
-# TODO fix hardcoded values
-audio_len = 30 # seconds
-word_syl_thresh = 4
-sentence_word_thresh = 60
-
-example_text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+import json
 
 # analyses the video transcript
-def analyse(example_text, audio_len, word_syl_thresh, sentence_word_thresh):
+def analyse(example_text, audio_len = 30, word_syl_thresh = 4, sentence_word_thresh = 60):
 
     character_count, word_count, num_of_sentenes, len_of_sentences, len_of_words, readability, syllables_in_words, syllables_in_sentences = extract(example_text)
 
@@ -34,10 +27,15 @@ def analyse(example_text, audio_len, word_syl_thresh, sentence_word_thresh):
     r_score_fog = readability[1].score
     r_grade_level_fog = readability[1].grade_level
 
-    return(long_word_count, long_sentence_count, r_score_flesch, r_grade_level_flesch, r_score_fog, r_grade_level_fog)
+    value = {
+        "long_words": long_word_count,
+        "long_sentences": long_sentence_count,
+        "flesch–kincaid_score": r_score_flesch,
+        "flesch–kincaid_grade": r_grade_level_flesch,
+        "gunning_fog_index_score": r_score_fog,
+        "gunning_fog_index_grade": r_grade_level_fog,
 
-print(analyse(example_text, audio_len, word_syl_thresh, sentence_word_thresh))
-
-
-
+    }
+    
+    return json.dumps(value)
 
