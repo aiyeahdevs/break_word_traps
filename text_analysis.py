@@ -23,7 +23,7 @@ def analyse(example_text, audio_len = 30, word_syl_thresh = 4, sentence_word_thr
 
     # readability (can print score and grade level)
     r_score_flesch = readability[0].score
-    r_grade_level_flesch = readability[0].grade_levels
+    r_grade_level_flesch = readability[0].grade_levels[0]
     r_score_fog = readability[1].score
     r_grade_level_fog = readability[1].grade_level
 
