@@ -47,7 +47,7 @@ def plot_loudness(sr, db, threshold_low, threshold_high):
     plt.title('Analiza głośności mowy')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('loudness_analysis.png')
+    plt.savefig('../api/images/loudness_analysis.png')
     plt.close()
 
 def analyze_volume(file_path, threshold_quiet_db, threshold_loud_db):
