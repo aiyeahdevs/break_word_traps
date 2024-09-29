@@ -6,8 +6,18 @@ export interface Task {
 }
 
 export const tasks: Task[] = [
-  { name: "audio", endpoint: "audio", title: "Analiza Audio", completed: false },
-  //{ name: "target-group", endpoint: "target-group", title: "Analiza Grupy Docelowej", completed: false },
+  {
+    name: "audio",
+    endpoint: "audio",
+    title: "Analiza Audio",
+    completed: false,
+  },
+  {
+    name: "target-group",
+    endpoint: "target-group",
+    title: "Analiza Grupy Docelowej",
+    completed: false,
+  },
   // { name: "extract-jargon", endpoint: "extract-jargon", title: "Wyciąganie Żargonu", completed: false },
   // { name: "simplify-jargon", endpoint: "simplify-jargon", title: "Zamiana Żargonu na zrozumiałe wyrażenia", completed: false },
   // { name: "detect-foreign", endpoint: "detect-foreign", title: "Wykryj obcojęzyczne słowa", completed: false },
