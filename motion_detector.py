@@ -1,5 +1,6 @@
 import cv2, time
 from datetime import datetime
+import json
 
 def detect(vid):
 
@@ -72,11 +73,13 @@ def detect(vid):
 	print(motions)
 
 	if motions > 2000:
-		return("Wykryto rozpraszający ruch!")
+		value = {
+			"result": "Wykryto rozpraszający ruch"
+		}
 	else:
-		return("Nie wykryto rozpraszającego ruchu.")
+		value = {
+			"result": "Nie wykryto rozpraszającego ruchu"
+		}
 
-detect('./../../tasks/videos/HY_2024_film_02.mp4')
-
-
+	return json.dumps(value)
 
