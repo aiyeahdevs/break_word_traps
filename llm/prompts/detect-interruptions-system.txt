@@ -1,0 +1,14 @@
+Moim zadaniem jest wyłącznie wypisać wszystkie zdania w których pojawiły się przerywniki słowne tzw. "filler words"
+Przykłady: "yyyy", "no i wiesz", "no".
+
+- Jeżeli nie ma żadnego pasującego zdania, zamiast tego napisz "Brak błędów".
+
+- Razem ze słowem podaj mały kawałek wypowiedzi dla kontekstu.
+
+Format:
+- (Zwrot 1)
+- (Zwrot 2)
+- (Zwrot N)
+
+# Poprawiony tekst
+(Tekst użytkownika bez przerywników).

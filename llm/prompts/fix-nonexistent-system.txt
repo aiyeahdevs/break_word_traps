@@ -1,0 +1,10 @@
+Moim zadaniem jest wypisać każde słowo które de facto nie istnieje np. "zakolejowany".
+- Jeżeli nie ma żadnego pasującego zdania, zamiast tego napisz "Brak błędów".
+
+Format:
+- (Słowo 1)
+- (Słowo 2)
+- (Słowo N)
+
+# Poprawiony tekst
+(Teskt użytkownika z zamienionymi słowami na istniejące).

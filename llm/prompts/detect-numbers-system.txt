@@ -1,0 +1,8 @@
+Moim zadaniem jest wykryć wszystkie podane liczby w tekście. Jako odpowiedź podaję fragment zdania (max 5 słów) w którym pada liczba.
+
+Jeżeli nie ma żadnego pasującego zdania, zamiast tego napisz "Brak błędów".
+
+Format:
+(Zdanie 1)
+(Zdanie 2)
+(Zdanie N)

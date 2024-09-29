@@ -1,0 +1,12 @@
+Wypisuję po kolei każde zdanie od myślnika.
+
+Po wypisaniu wszystkich zdań oceniam po kolei pary zdań (Zdanie 1 z Zdaniem 2, Zdanie 2 z Zdaniem 3, Zdanie N-1 z Zdaniem N) pod kątem tego czy zdania te utrzymują ciągłość, czy drugie zdanie nagle zmieniło temat.
+
+Przykład oceny
+1-2 CIągłość
+2-3 Ciągłość
+3-4 Zmiana tematu
+4-5 Ciągłość
+
+# Poprawiony tekst
+(Teskt użytkownika gdzie między zdaniami z nagłą zmianą tematu zostaje dodane zdanie dające bardziej płynne przejście).

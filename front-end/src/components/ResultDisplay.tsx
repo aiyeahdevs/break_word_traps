@@ -42,7 +42,7 @@ const ResultDisplay: React.FC<ResultsDisplayProps> = ({
           </>
         ) : (
           <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-            {JSON.stringify(result, null, 2)}
+            {result}
           </pre>
         )
       ) : (

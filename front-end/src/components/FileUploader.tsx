@@ -26,8 +26,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   setLoadingTasks,
   setError,
 }) => {
-  const [files, setFiles] = useState<File[]>([]);
-  const pollInterval = 2000; // 2 seconds
+  const [file, setFile] = useState<File | null>(null);
+  const pollInterval = 5000; // 2 seconds
 
   const pollJobStatus = useCallback(
     async (jobId: string) => {
@@ -39,11 +39,20 @@ const FileUploader: React.FC<FileUploaderProps> = ({
             );
             if (response.status === 200) {
               task.completed = true;
-              const data = await response.json();
-              setResults((prevResults) => ({
-                ...prevResults,
-                [task.name]: data[task.name],
-              }));
+              if (response.headers.get("content-type")?.includes("image")) {
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                setResults((prevResults) => ({
+                  ...prevResults,
+                  [task.name]: imageUrl,
+                }));
+              } else {
+                const data = await response.json();
+                setResults((prevResults) => ({
+                  ...prevResults,
+                  [task.name]: data[task.name],
+                }));
+              }
               setLoadingTasks((prevLoadingTasks) => ({
                 ...prevLoadingTasks,
                 [task.name]: false,
@@ -66,11 +75,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
 
       checkStatus();
     },
-    [onJobComplete, setError, setResults, tasks]
+    [onJobComplete, setError, setResults, setLoadingTasks]
   );
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+    if (acceptedFiles.length > 0) {
+      setFile(acceptedFiles[0]);
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
@@ -82,13 +93,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     });
 
   const handleUpload = async () => {
-    if (files.length === 0) return;
+    if (!file) return;
 
     setError(null);
     setResults({});
 
     const formData = new FormData();
-    formData.append("file", files[0]);
+    formData.append("file", file);
 
     try {
       const response = await fetch("http://localhost:8000/start-job/", {
@@ -111,7 +122,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       console.error("Upload error:", e);
       onJobComplete();
     } finally {
-      setFiles([]);
+      setFile(null);
     }
   };
 
@@ -122,19 +133,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         {isDragActive ? (
           <p>Upuść pliki MP4 tutaj ...</p>
         ) : (
-          <p>
-            Przeciągnij i upuść pliki MP4 tutaj lub kliknij, aby wybrać pliki
-          </p>
+          <p>Przeciągnij i upuść plik MP4 tutaj lub kliknij, aby wybrać plik</p>
         )}
       </div>
-      {files.length > 0 && (
+      {file && (
         <div>
-          <h4>Wybrane pliki:</h4>
-          <ul>
-            {files.map((file, index) => (
-              <li key={index}>{file.name}</li>
-            ))}
-          </ul>
+          <h4>Wybrany plik:</h4>
+          <p>{file.name}</p>
         </div>
       )}
       {fileRejections.length > 0 && (
@@ -149,7 +154,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
           </ul>
         </div>
       )}
-      <button onClick={handleUpload} disabled={files.length === 0}>
+      <button onClick={handleUpload} disabled={!file}>
         Wyślij pliki
       </button>
     </div>
