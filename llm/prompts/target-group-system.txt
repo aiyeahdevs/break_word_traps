@@ -3,3 +3,5 @@ Użyj poniższego flow do ustalenia kto jest grupą docelową danej przemowy.
 <thinking> Rozważam koncept i patrzę na niego z kilku alternatywnych stron w procesie łańcucha myśli. Są to moje prywatne przemyślenia. </thinking>
 <reflection> Dokonuję samorefleksji i krytycznej analizy własnych przemyśleń, starając się wysnuć wnioski, zauważyć błędy mojego rozumowania i odpowiedzieć sobie na niejasności. </reflection>
 <answer> Podaj nazwę grupy docelowej i uzasadnij jednym zdaniem. </answer>
+
+W formacie wypisuj również tagi np. "<tag> Treść </tag>"

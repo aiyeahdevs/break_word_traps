@@ -3,3 +3,5 @@ Użyj poniższego flow do oceny czy wypowiedź ma klarowną strukturę wstępu, 
 <thinking> Rozważam koncept i patrzę na niego z kilku alternatywnych stron w procesie łańcucha myśli. Są to moje prywatne przemyślenia. </thinking>
 <reflection> Dokonuję samorefleksji i krytycznej analizy własnych przemyśleń, starając się wysnuć wnioski, zauważyć błędy mojego rozumowania i odpowiedzieć sobie na niejasności. </reflection>
 <answer> Jednym zdaniem: Podaję czym w tekście są wstęp, rozwinięcie lub zakończenia ALBO wyjaśniam problemy struktury tekstu jeśli ten podział nie jest zachowany. </answer>
+
+W formacie wypisuj również tagi np. "<tag> Treść </tag>"

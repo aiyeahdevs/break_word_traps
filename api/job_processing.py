@@ -7,6 +7,8 @@ import hashlib
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 from functools import partial
+from text_analysis import analyse
+from motion_detector import detect
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,6 +16,12 @@ logger = logging.getLogger(__name__)
 MAX_WORKERS = 5  # Adjust this based on your system's capabilities
 TASK_TIMEOUT = 300  # 5 minutes timeout for each task
 
+def text_analysis(transcript: str):
+   return analyse(transcript)
+
+def distracting_movements(video_file_path: str):
+   return detect(video_file_path)
+    
 def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: float, job_id: str, llmkey: str, transcription_cache, job_results):
     try:
         file_hash = get_file_hash(file_path)
@@ -34,6 +42,8 @@ def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: f
         
         tasks = [
             ("audio", partial(process_audio, temp_audio_file or file_path, threshold_quiet_db, threshold_loud_db)),
+            ("text-analysis", partial(text_analysis, transcription)),          
+            ("distracting-movements", partial(distracting_movements, file_path)),
             ("target-group", partial(analyze_target_group, llmkey, transcription)),
             ("detect-foreign", partial(detect_foreign, llmkey, transcription)),
             ("detect-numbers", partial(detect_numbers, llmkey, transcription)),
@@ -45,7 +55,9 @@ def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: f
             ("fix-passive", partial(fix_passive, llmkey, transcription)),
             ("fix-nonexistent", partial(fix_nonexistent, llmkey, transcription)),
             ("validate-understanding", partial(validate_understanding, llmkey, transcription)),
-            ("evaluate-structure", partial(evaluate_structure, llmkey, transcription))
+            ("evaluate-structure", partial(evaluate_structure, llmkey, transcription)),
+            
+            
         ]
 
         job_results[job_id] = {}

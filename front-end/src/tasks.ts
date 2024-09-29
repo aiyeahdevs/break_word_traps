@@ -7,6 +7,18 @@ export interface Task {
 
 export const tasks: Task[] = [
   {
+    name: "text-analysis",
+    endpoint: "text-analysis",
+    title: "Analiza tekstu",
+    completed: false,
+  },
+  {
+    name: "distracting movements",
+    endpoint: "distracting movements",
+    title: "Rozpraszające ruchy",
+    completed: false,
+  },
+  {
     name: "audio",
     endpoint: "audio",
     title: "Analiza Audio",

@@ -1,6 +1,7 @@
 import cv2, time
 from datetime import datetime
 import json
+import sys
 
 def detect(vid):
 
@@ -83,3 +84,11 @@ def detect(vid):
 
 	return json.dumps(value)
 
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python motion_detector.py <path to vid>")
+        sys.exit(1)
+    
+    result = detect(sys.argv[1])
+    print(result)

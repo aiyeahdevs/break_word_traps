@@ -6,6 +6,8 @@ Dla podanych zwrotów użytkownika zapronuj bardziej przystępne zwroty, które 
 
 - Jeżeli nie ma żadnego pasującego zdania, zamiast tego napisz "Brak błędów".
 
+W formacie wypisuj również tagi np. "<tag> Treść </tag>"
+
 Format:
 
 <thinking> Rozważam koncept i patrzę na niego z kilku alternatywnych stron w procesie łańcucha myśli. Są to moje prywatne przemyślenia. </thinking>
