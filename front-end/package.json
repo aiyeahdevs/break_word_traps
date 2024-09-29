@@ -19,6 +19,7 @@
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/react-dropzone": "^5.1.0",
+    "dotenv": "^16.4.5",
     "html-webpack-plugin": "^5.6.0",
     "ts-loader": "^9.5.1",
     "typescript": "^4.5.4",

@@ -1,5 +1,6 @@
 import React from "react";
 import { Task } from "../tasks";
+import { buildUrl } from "../utils/urlBuilder";
 
 interface ResultsDisplayProps {
   task: Task;
@@ -29,7 +30,7 @@ const ResultDisplay: React.FC<ResultsDisplayProps> = ({
         task.name === "audio" ? (
           <>
             <img
-              src="http://localhost:8000/images/loudness_analysis.png"
+              src={buildUrl("images/loudness_analysis.png")}
               alt="Loudness Analysis"
               style={{ maxWidth: "100%", height: "auto" }}
             />

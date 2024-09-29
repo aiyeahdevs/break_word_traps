@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { tasks } from "../tasks";
+import { buildUrl } from "../utils/urlBuilder";
 
 interface FileUploaderProps {
   apiKey: string;
@@ -35,7 +36,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         try {
           for (const task of tasks.filter((task) => !task.completed)) {
             const response = await fetch(
-              `http://localhost:8000/job-result/${jobId}/${task.endpoint}`
+              buildUrl(`job-result/${jobId}/${task.endpoint}`)
             );
             if (response.status === 200) {
               task.completed = true;
@@ -102,7 +103,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://localhost:8000/start-job/", {
+      const response = await fetch(buildUrl("start-job"), {
         method: "POST",
         headers: {
           llmkey: apiKey,
