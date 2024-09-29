@@ -72,9 +72,13 @@ module.exports = {
     }),
   ],
   devServer: {
-    static: path.join(__dirname, "dist"),
+    static: path.join(__dirname, 'dist'),
+    allowedHosts: 'all',
     compress: true,
     port: process.env.FRONT_PORT || 3010,
+    headers: {
+      'Cache-Control': 'no-store',
+    },
   },
   devtool: "inline-source-map",
 };
