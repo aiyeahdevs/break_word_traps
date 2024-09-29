@@ -9,10 +9,22 @@ import os
 import random
 import subprocess
 import tempfile
+import hashlib
 
 PROMPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../llm")
 
 app = FastAPI()
+
+# Transcription cache
+transcription_cache = {}
+
+def get_file_hash(file_path):
+    """Generate a hash for the file content."""
+    hasher = hashlib.md5()
+    with open(file_path, 'rb') as f:
+        buf = f.read()
+        hasher.update(buf)
+    return hasher.hexdigest()
 
 def extract_audio(video_path):
     temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
@@ -107,16 +119,26 @@ def load_prompt(file_name: str) -> str:
         return "You are a helpful assistant."
 
 def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: float, job_id: str, llmkey: str):
-    temp_audio_file = extract_audio(file_path)
-    if temp_audio_file is None:
-        job_results[job_id] = {"error": "Failed to extract audio from video"}
-        return
-
     try:
-        transcription = transcribe_audio(api_key=llmkey, file_path=temp_audio_file)
+        # Generate a hash for the video file
+        file_hash = get_file_hash(file_path)
         
+        # Check if transcription is in cache
+        if file_hash in transcription_cache:
+            print("Transcription found in cache")
+            transcription = transcription_cache[file_hash]
+            temp_audio_file = None
+        else:
+            temp_audio_file = extract_audio(file_path)
+            if temp_audio_file is None:
+                job_results[job_id] = {"error": "Failed to extract audio from video"}
+                return
+            transcription = transcribe_audio(api_key=llmkey, file_path=temp_audio_file)
+            # Store in cache
+            transcription_cache[file_hash] = transcription
+
         tasks = [
-            ("audio", lambda: process_audio(temp_audio_file, threshold_quiet_db, threshold_loud_db)),
+            ("audio", lambda: process_audio(temp_audio_file or file_path, threshold_quiet_db, threshold_loud_db)),
             ("target-group", lambda: analyze_target_group(llmkey, transcription)),
             ("detect-numbers", lambda: detect_numbers(llmkey, transcription))]
 
@@ -126,8 +148,13 @@ def process_file(file_path: str, threshold_quiet_db: float, threshold_loud_db: f
     except Exception as e:
         job_results[job_id] = {"error": str(e)}
     finally:
-        delete_audio(temp_audio_file)
+        if temp_audio_file:
+            delete_audio(temp_audio_file)
         os.remove(file_path)
+
+    # Optionally, clear cache if it gets too large
+    if len(transcription_cache) > 100:
+        transcription_cache.clear()
 
 @app.post("/start-job/")
 async def start_job(
