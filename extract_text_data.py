@@ -1,5 +1,5 @@
 import re
-from readability import Readability
+import readability
 import nltk
 from nltk.corpus import cmudict
 from sentimentpl.models import SentimentPLModel

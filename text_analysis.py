@@ -1,5 +1,6 @@
 from extract_text_data import *
 
+
 # TODO fix hardcoded values
 audio_len = 30 # seconds
 word_syl_thresh = 4
